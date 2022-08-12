@@ -1,6 +1,6 @@
 # sudoku
 
-This project contains the Python code for both a backtracking algorithm used to solve a pre-determined sudoku board, as well as a GUI that will display the board for easier use. 
+This project contains the Python code for both a backtracking algorithm used to solve any given sudoku board, as well as a GUI that will display the board for easier use. 
 
 When the program is run, the user is met with a predetermined, valid sudoku board:
 
