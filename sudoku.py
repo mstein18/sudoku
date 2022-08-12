@@ -99,6 +99,7 @@ def pointInRectangle(px, py, rw, rh, rx, ry):
     return False
 
 def main():
+    # The default game board
     board = [
     [7, 8, 0, 4, 0, 0, 1, 2, 0],
     [6, 0, 0, 0, 7, 5, 0, 0, 9],
@@ -125,14 +126,14 @@ def main():
     ] 
 
     pygame.init()
-
     pygame.display.set_caption('SudokuSolver')
 
+    # Creating the game window & background
     window_surface = pygame.display.set_mode((400, 550))
-
     background = pygame.Surface((400, 550))
     background.fill(pygame.Color('#000000'))
 
+    # Creating the "Solve" button that allows the user to solve the board.
     button1 = SolveButton(
         "Solve",
         (280, 435),
@@ -140,6 +141,8 @@ def main():
         bg="white",
         feedback="Solved!")
 
+    # This block of code is responsible for adding each Sudoku tile to an array called buttons.
+    # The position of each tile is generated within the for loop, and then appended to the array
     buttons = []
     x = 6
     y = 6
@@ -155,132 +158,128 @@ def main():
              y += 53
         else:
              y += 41
-        
+    #--------------------------------------------------------------------------------------------    
+    
+    # This chunk of code is responsible for the message that will display if the current Sudoku board
+    # does NOT have a solution. A message in the bottom left corner of the game board will appear, 
+    # telling the user they must reset the game board.
     green = (0, 255, 0)
     blue = (0, 0, 128)
-
     errorFont = pygame.font.SysFont("comicsans", 18)
     errorTextTop = errorFont.render("This puzzle is not", True, green, blue)
     errorTextBottom = errorFont.render("solvable. Click Reset!", True, green, blue)
-
     textRectTop = errorTextTop.get_rect()
     textRectTop.center = (90, 450)
-
     textRectBottom = errorTextBottom.get_rect()
     textRectBottom.center = (90, 475)
+    #-------------------------------------------------------------------------------------------------
 
+    for b in buttons:
+        b.render(window_surface)
+
+    # Creating the pygame eventloop
     is_running = True
-
     while is_running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 is_running = False
-                
-        # If the "Solve" button is pressed:
-        if (button1.clicked(event) and button1.getText() != "Reset"):
-            fill(board)
-            if fb:
-                holder = []
-                for i in range(9):
-                    for j in range(9):
-                        holder.append(fb[i][j])
-                count = 0
-                for b in buttons:
-                    b.setNumber(holder[count])
-                    b.render(window_surface)
-                    count += 1
-            else:
-                window_surface.blit(errorTextTop, textRectTop)
-                window_surface.blit(errorTextBottom, textRectBottom)
-                button1.setText("Reset")
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if (button1.clicked(event) and button1.getText() != "Reset"):
+                    fill(board)
+                    if fb:
+                        # If we got to here, it means the board DOES have a solution, so fill the board with the correct solution.
+                        button1.setText("Solve")
+                        button1.show(window_surface)
+                        holder = []
+                        for i in range(9):
+                            for j in range(9):
+                                holder.append(fb[i][j])
+                        count = 0
+                        for b in buttons:
+                            b.setNumber(holder[count])
+                            b.render(window_surface)
+                            count += 1
+                    else:
+                        # Otherwise, the board doesn't have a solution, so display the error message.
+                        window_surface.blit(errorTextTop, textRectTop)
+                        window_surface.blit(errorTextBottom, textRectBottom)
+                        button1.setText("Reset")
+                        button1.show(window_surface)
+                        pygame.display.flip()
+                elif (button1.clicked(event) and button1.getText() == "Reset"):
+                    button1.setText("Solve")
+                    button1.show(window_surface)
+                    holder = []
+                    for i in range(9):
+                        for j in range(9):
+                            holder.append(board_backup[i][j])
+                    count = 0
+                    for b in buttons:
+                        b.setNumber(holder[count])
+                        b.render(window_surface)
+                        count += 1
+                    board = board_backup
+                    pygame.draw.rect(window_surface, (0,0,0), pygame.Rect(0, 400, 200, 100))
+                    pygame.display.flip()
+                else:
+                    for b in buttons:
+                        b.render(window_surface)
+                        if b.clicked(event, pygame.mouse.get_pos()):
+                            # The following 2 lines are so the button will change color when clicked (to highlight it)
+                            b.render(window_surface)
+                            pygame.display.flip()
+                            # If we got here, it means the user clicked on a board tile.
+                            pygame.event.clear()
+                            new_event = pygame.event.wait()
+                            while (new_event.type != pygame.KEYDOWN):
+                                new_event = pygame.event.wait()
+                            if (new_event.key == pygame.K_0):
+                                coords = b.getPosInBoard()
+                                board[coords[0]][coords[1]] = 0
+                                b.setNumber(0)
+                            elif (new_event.key == pygame.K_1):
+                                coords = b.getPosInBoard()
+                                board[coords[0]][coords[1]] = 1
+                                b.setNumber(1)
+                            elif (new_event.key == pygame.K_2):
+                                coords = b.getPosInBoard()
+                                board[coords[0]][coords[1]] = 2
+                                b.setNumber(2)
+                            elif (new_event.key == pygame.K_3):
+                                coords = b.getPosInBoard()
+                                board[coords[0]][coords[1]] = 3
+                                b.setNumber(3)
+                            elif (new_event.key == pygame.K_4):
+                                coords = b.getPosInBoard()
+                                board[coords[0]][coords[1]] = 4
+                                b.setNumber(4)
+                            elif (new_event.key == pygame.K_5):
+                                coords = b.getPosInBoard()
+                                board[coords[0]][coords[1]] = 5
+                                b.setNumber(5)
+                            elif (new_event.key == pygame.K_6):
+                                coords = b.getPosInBoard()
+                                board[coords[0]][coords[1]] = 6
+                                b.setNumber(6)
+                            elif (new_event.key == pygame.K_7):
+                                coords = b.getPosInBoard()
+                                board[coords[0]][coords[1]] = 7
+                                b.setNumber(7)
+                            elif (new_event.key == pygame.K_8):
+                                coords = b.getPosInBoard()
+                                board[coords[0]][coords[1]] = 8
+                                b.setNumber(8)
+                            elif (new_event.key == pygame.K_9):
+                                coords = b.getPosInBoard()
+                                board[coords[0]][coords[1]] = 9
+                                b.setNumber(9)
+                            b.render(window_surface)
+                           
         button1.show(window_surface)
-
-        # This loop will attempt to change any of the sudoku tiles if they are clicked, then given a number input to change to.
-        for b in buttons:
-            b.render(window_surface)
-            if b.clicked(event):
-                pygame.event.clear()
-                new_event = pygame.event.wait()
-                while (new_event.type != pygame.KEYDOWN):
-                    new_event = pygame.event.wait()
-                if new_event.type == pygame.KEYDOWN:
-                    if (new_event.key == pygame.K_0):
-                        coords = b.getPosInBoard()
-                        board[coords[0]][coords[1]] = 0
-                        b.setNumber(0)
-                    elif (new_event.key == pygame.K_1):
-                        coords = b.getPosInBoard()
-                        board[coords[0]][coords[1]] = 1
-                        b.setNumber(1)
-                    elif (new_event.key == pygame.K_2):
-                        coords = b.getPosInBoard()
-                        board[coords[0]][coords[1]] = 2
-                        b.setNumber(2)
-                    elif (new_event.key == pygame.K_3):
-                        coords = b.getPosInBoard()
-                        board[coords[0]][coords[1]] = 3
-                        b.setNumber(3)
-                    elif (new_event.key == pygame.K_4):
-                        coords = b.getPosInBoard()
-                        board[coords[0]][coords[1]] = 4
-                        b.setNumber(4)
-                    elif (new_event.key == pygame.K_5):
-                        coords = b.getPosInBoard()
-                        board[coords[0]][coords[1]] = 5
-                        b.setNumber(5)
-                    elif (new_event.key == pygame.K_6):
-                        coords = b.getPosInBoard()
-                        board[coords[0]][coords[1]] = 6
-                        b.setNumber(6)
-                    elif (new_event.key == pygame.K_7):
-                        coords = b.getPosInBoard()
-                        board[coords[0]][coords[1]] = 7
-                        b.setNumber(7)
-                    elif (new_event.key == pygame.K_8):
-                        coords = b.getPosInBoard()
-                        board[coords[0]][coords[1]] = 8
-                        b.setNumber(8)
-                    elif (new_event.key == pygame.K_9):
-                        coords = b.getPosInBoard()
-                        board[coords[0]][coords[1]] = 9
-                        b.setNumber(9)        
-
-        # If the "Solve" button is pressed:
-        if (button1.clicked(event) and button1.getText() != "Reset"):
-            fill(board)
-            if fb:
-                holder = []
-                for i in range(9):
-                    for j in range(9):
-                        holder.append(fb[i][j])
-                count = 0
-                for b in buttons:
-                    b.setNumber(holder[count])
-                    b.render(window_surface)
-                    count += 1
-            else:
-                button1.setText("Reset")
-
-        if (button1.getText() == "Reset"):
-            pygame.event.clear()
-            pygame.event.set_allowed(pygame.MOUSEBUTTONDOWN)
-            click_event = pygame.event.wait()
-            if (button1.clicked(click_event)):
-                button1.setText("Solve")
-                holder = []
-                for i in range(9):
-                    for j in range(9):
-                        holder.append(board_backup[i][j])
-                count = 0
-                for b in buttons:
-                    b.setNumber(holder[count])
-                    b.render(window_surface)
-                    count += 1
-                pygame.draw.rect(window_surface, (0,0,0), pygame.Rect(0, 400, 200, 100))
-                pygame.display.flip()
-
         pygame.display.update()
 
+# The GridButton class represents every single Sudoku tile on the board. It is responsible for
+# rendering the tiles on the display and getting data about each tile.
 class GridButton:
     def __init__(self, text:str, position:tuple, posInBoard:tuple, background, size:tuple=(35,35)):
         self.posInBoard = posInBoard
@@ -293,26 +292,31 @@ class GridButton:
         font = pygame.font.SysFont("comicsans", 30)
         self.textSurf = font.render(f"{text}", True, (0,0,0))
 
+    # Renders the individual tile onto the board
     def render(self, display:pygame.display):
         display.blit(self.button, self.position)
         display.blit(self.textSurf, self.position)
 
+    # Sets a tile's number to a user-given input 1-9
     def setNumber(self, newNumber):
         self.text = newNumber
         font = pygame.font.SysFont("comicsans", 30)
         self.textSurf = font.render(f"{self.text}", True, (0,0,0))
         self.button.fill((255,255,255))
 
+    # Returns a tuple representing the coordinates where this tile lies on the board
     def getPosInBoard(self):
         return self.posInBoard
 
+    # Returns this tile's number
     def getNumber(self):
         return self.text
 
-    def clicked(self, events):
-        mousePos = pygame.mouse.get_pos()
+    # Checks to see if this tile was clicked by the user
+    def clicked(self, events, coords:tuple):
+        mousePos = coords
         if pointInRectangle(mousePos[0], mousePos[1], self.size[0], self.size[1], self.position[0], self.position[1]):
-            if events.type == pygame.MOUSEBUTTONUP:
+            if events.type == pygame.MOUSEBUTTONDOWN:
                 self.button.fill((200,200,200))
                 return True
         return False
